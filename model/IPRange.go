@@ -1,6 +1,7 @@
 package model
 
 import (
+	"bytes"
 	"net"
 	"strings"
 )
@@ -18,5 +19,14 @@ func NewIPRange(ipRange string) IPRange {
 	return IPRange{
 		From: net.ParseIP(slicedRange[0]),
 		To:   net.ParseIP(slicedRange[1]),
+	}
+}
+
+func (ipRange IPRange) IsInRange(ipString string) bool {
+	parsedIP := net.ParseIP(ipString)
+	if bytes.Compare(parsedIP, ipRange.From) >= 0 && bytes.Compare(parsedIP, ipRange.To) <= 0 {
+		return true
+	} else {
+		return false
 	}
 }
