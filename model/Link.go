@@ -4,6 +4,8 @@ import (
 	"time"
 )
 
+//TODO: Priority Level: high priority level send email + SMS
+
 type Link struct {
 	ResourcePath     string
 	PageViews        []PageView
