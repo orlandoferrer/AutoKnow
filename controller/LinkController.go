@@ -11,16 +11,16 @@ type LinkController struct {
 	linkDao db.LinkDao
 }
 
-func NewLinkController(linkDao db.LinkDao) LinkController {
-	return LinkController{linkDao}
+func NewLinkController(linkDao db.LinkDao) *LinkController {
+	return &LinkController{linkDao}
 }
 
-func (linkController LinkController) Init() error {
+func (linkController *LinkController) Init() error {
 	//TODO Do actual error handling
 	return linkController.linkDao.Init()
 }
 
-func (linkController LinkController) CreateLink(link model.Link) error {
+func (linkController *LinkController) CreateLink(link model.Link) error {
 	//TODO Do actual error handling
 	exists := linkController.doesResourceExist(link)
 	if exists == false {
@@ -33,12 +33,12 @@ func (linkController LinkController) CreateLink(link model.Link) error {
 	return nil
 }
 
-func (linkController LinkController) doesResourceExist(link model.Link) bool {
+func (linkController *LinkController) doesResourceExist(link model.Link) bool {
 	//TODO Do actual error handling
 	linkFound := linkController.linkDao.FindLinkByResourcePath(link.ResourcePath)
 	return linkFound != nil
 }
 
-func (linkController LinkController) GetLinkByResourcePath(resourcePath string) *model.Link {
+func (linkController *LinkController) GetLinkByResourcePath(resourcePath string) *model.Link {
 	return linkController.linkDao.FindLinkByResourcePath(resourcePath)
 }

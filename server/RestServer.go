@@ -14,16 +14,17 @@ import (
 
 type RestServer struct {
 	Port           int
-	linkController controller.LinkController
+	linkController *controller.LinkController
 }
 
-func (restServer RestServer) Init() {
+func (restServer *RestServer) Init() {
 	if restServer.Port == 0 {
 		restServer.Port = 8080
 	}
 
 	newLinkDao := &db.LinkDaoMap{}
-	restServer.linkController = controller.NewLinkController(newLinkDao)
+	newController := controller.NewLinkController(newLinkDao)
+	restServer.linkController = &newController
 	restServer.linkController.Init()
 
 	r := mux.NewRouter()
@@ -44,13 +45,13 @@ type LinkInfo struct {
 	Message string `json:"message"`
 }
 
-func helloHandler(restServer RestServer) http.HandlerFunc {
+func helloHandler(restServer *RestServer) http.HandlerFunc {
 	return func(response http.ResponseWriter, req *http.Request) {
 		fmt.Fprintf(response, "hello!")
 	}
 }
 
-func newLinkHandler(restServer RestServer) http.HandlerFunc {
+func newLinkHandler(restServer *RestServer) http.HandlerFunc {
 	return func(response http.ResponseWriter, req *http.Request) {
 		fmt.Printf("hello!\n")
 		decoder := json.NewDecoder(req.Body)
@@ -72,17 +73,19 @@ func newLinkHandler(restServer RestServer) http.HandlerFunc {
 	}
 }
 
-func redirectHandler(restServer RestServer) http.HandlerFunc {
+func redirectHandler(restServer *RestServer) http.HandlerFunc {
 	return func(response http.ResponseWriter, req *http.Request) {
 		vars := mux.Vars(req)
-		linkFound := restServer.linkController.GetLinkByResourcePath(vars["linkResourcePath"])
+		linkResourcePathToFind := vars["linkResourcePath"]
+		linkFound := restServer.linkController.GetLinkByResourcePath(linkResourcePathToFind)
+		log.Printf("Using path %v found linke %v\n", linkResourcePathToFind, linkFound)
 
 		log.Printf("Redirecting to link:%v\n", linkFound)
 		http.Redirect(response, req, linkFound.RedirectionPath, 302)
 	}
 }
 
-func editHandler(restServer RestServer) http.HandlerFunc {
+func editHandler(restServer *RestServer) http.HandlerFunc {
 	return func(response http.ResponseWriter, req *http.Request) {
 	}
 }
