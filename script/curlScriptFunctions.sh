@@ -1,5 +1,6 @@
 #!/bin/bash
-function  newLink {
+function NewLink {
+
   curl -X POST -H "Content-Type: application/json" -d \
   '{
    "resourcePath":"myPath",
@@ -9,6 +10,6 @@ function  newLink {
   http://localhost:8080/api/newlink
 }
 
-function  redirect {
+function Redirect {
   curl http://localhost:8080/myPath
 }
