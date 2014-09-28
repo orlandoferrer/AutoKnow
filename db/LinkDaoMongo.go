@@ -1,6 +1,10 @@
 package db
 
-import "github.com/orlandoferrer/AutoKnow/model"
+import (
+	"github.com/orlandoferrer/AutoKnow/model"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
+)
 
 type LinkDaoMongo struct {
 }
