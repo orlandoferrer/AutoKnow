@@ -7,8 +7,8 @@ import (
 )
 
 type IPRange struct {
-	From net.IP
-	To   net.IP
+	From net.IP `json:"from"`
+	To   net.IP `json:"to"`
 }
 
 func NewIPRange(ipRange string) IPRange {

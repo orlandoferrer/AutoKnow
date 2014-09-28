@@ -6,7 +6,7 @@ import (
 )
 
 type PageView struct {
-	CreationTime time.Time
-	IPAddress    net.IP
-	HTTPHeaders  map[string]string
+	CreationTime time.Time         `json:"creationTime"`
+	IPAddress    net.IP            `json:"ipAddress"`
+	HTTPHeaders  map[string]string `json:"httpHeaders"`
 }
