@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"log"
 
 	"github.com/orlandoferrer/AutoKnow/model"
@@ -15,11 +16,15 @@ func (linkDao *LinkDaoMap) Init() error {
 	return nil
 }
 
-func (linkDao *LinkDaoMap) FindLinkByResourcePath(resourcePath string) *model.Link {
-	linkFound := linkDao.linkMap[resourcePath]
+func (linkDao *LinkDaoMap) FindLinkByResourcePath(resourcePath string) (*model.Link, error) {
+	linkFound, linkInMap := linkDao.linkMap[resourcePath]
+	if !linkInMap {
+		return nil, errors.New("Key not found in map")
+	}
+	// linkFound := linkDao.linkMap[resourcePath]
 	log.Printf("ResourcePath input:%v.  Found link:%v.  Whole map:%v.\n",
 		resourcePath, linkFound, linkDao.linkMap)
-	return &linkFound
+	return &linkFound, nil
 }
 func (linkDao *LinkDaoMap) CreateLink(link model.Link) error {
 	linkDao.linkMap[link.ResourcePath] = link

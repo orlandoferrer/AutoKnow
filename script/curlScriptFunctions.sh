@@ -4,7 +4,7 @@ function NewLink {
   curl -X POST -H "Content-Type: application/json" -d \
   '{
    "resourcePath":"myPath",
-   "redirectionPath":"www.google.com"
+   "redirectionPath":"http://www.google.com"
   }
   ' \
   http://localhost:8080/api/newlink

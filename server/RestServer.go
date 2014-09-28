@@ -24,7 +24,7 @@ func (restServer *RestServer) Init() {
 
 	newLinkDao := &db.LinkDaoMap{}
 	newController := controller.NewLinkController(newLinkDao)
-	restServer.linkController = &newController
+	restServer.linkController = newController
 	restServer.linkController.Init()
 
 	r := mux.NewRouter()
@@ -76,12 +76,28 @@ func newLinkHandler(restServer *RestServer) http.HandlerFunc {
 func redirectHandler(restServer *RestServer) http.HandlerFunc {
 	return func(response http.ResponseWriter, req *http.Request) {
 		vars := mux.Vars(req)
+		// log.Printf("Vars:%v, req:%v\n", vars, req)
+		// log.Printf("Header:%v\n", req.Header)
 		linkResourcePathToFind := vars["linkResourcePath"]
-		linkFound := restServer.linkController.GetLinkByResourcePath(linkResourcePathToFind)
+		linkFound, err := restServer.linkController.GetLinkByResourcePath(linkResourcePathToFind)
+		if err != nil {
+			log.Printf("Error trying to redirect:%v\n", err)
+			http.Error(response, "Could not find extension with that link", 404)
+			return
+		}
+
 		log.Printf("Using path %v found linke %v\n", linkResourcePathToFind, linkFound)
+		// req.RemoteAddr
+		newPageView := model.NewPageView(req.RemoteAddr, req.Header)
+		linkFound.PageViews = append(linkFound.PageViews, *newPageView)
+
+		restServer.linkController.UpdateLinkFoundByResourcePath(linkFound.ResourcePath,
+			*linkFound)
 
 		log.Printf("Redirecting to link:%v\n", linkFound)
+		log.Printf("Total pageviews:%v\n", len(linkFound.PageViews))
 		http.Redirect(response, req, linkFound.RedirectionPath, 302)
+		// http.Redirect(response, req, "http://www.google.com", 302)
 	}
 }
 
