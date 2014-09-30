@@ -1,5 +1,7 @@
 #!/bin/bash
+
 function NewLink {
+
 
   curl -X POST -H "Content-Type: application/json" -d \
   '{
