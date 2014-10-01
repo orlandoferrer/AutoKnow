@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -33,6 +34,7 @@ func (restServer *RestServer) Init() {
 	r.HandleFunc("/{linkResourcePath}", redirectHandler(restServer))
 
 	r.HandleFunc("/api/newlink", newLinkHandler(restServer))
+	r.HandleFunc("/api/getlinks", getLinksHandler(restServer))
 	http.Handle("/", r)
 
 	http.ListenAndServe(fmt.Sprintf(":%v", restServer.Port), nil)
@@ -45,14 +47,28 @@ type LinkInfo struct {
 	Message string `json:"message"`
 }
 
+func corsEnable(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+	//fmt.Println("corsEnable")
+}
+
 func helloHandler(restServer *RestServer) http.HandlerFunc {
 	return func(response http.ResponseWriter, req *http.Request) {
+		corsEnable(&response)
 		fmt.Fprintf(response, "hello!")
 	}
 }
 
 func newLinkHandler(restServer *RestServer) http.HandlerFunc {
 	return func(response http.ResponseWriter, req *http.Request) {
+		corsEnable(&response)
+		log.Printf("Req method:%v\n", req.Method)
+		log.Printf("Request:%v\n", req)
+		if "OPTIONS" == req.Method {
+
+			return
+		}
 		fmt.Printf("hello!\n")
 		decoder := json.NewDecoder(req.Body)
 		// var linkInfo LinkInfo
@@ -73,8 +89,27 @@ func newLinkHandler(restServer *RestServer) http.HandlerFunc {
 	}
 }
 
+func getLinksHandler(restServer *RestServer) http.HandlerFunc {
+	return func(response http.ResponseWriter, req *http.Request) {
+		corsEnable(&response)
+
+		links := restServer.linkController.GetResourcePathToLinks()
+		responseMap := make(map[string][]model.Link)
+		responseMap["links"] = links
+		b, err := json.Marshal(responseMap)
+
+		if err != nil {
+			log.Fatalf("Errored out with:%v\n", err)
+		}
+
+		fmt.Fprintf(response, string(b))
+
+	}
+}
+
 func redirectHandler(restServer *RestServer) http.HandlerFunc {
 	return func(response http.ResponseWriter, req *http.Request) {
+		corsEnable(&response)
 		vars := mux.Vars(req)
 		// log.Printf("Vars:%v, req:%v\n", vars, req)
 		// log.Printf("Header:%v\n", req.Header)
@@ -88,7 +123,18 @@ func redirectHandler(restServer *RestServer) http.HandlerFunc {
 
 		log.Printf("Using path %v found linke %v\n", linkResourcePathToFind, linkFound)
 		// req.RemoteAddr
-		newPageView := model.NewPageView(req.RemoteAddr, req.Header)
+		log.Printf("Req:%v\n", req)
+		// ipStringAll := strings.Split(req.RemoteAddr, ":")
+		//ipString := ipStringAll[0]
+
+		ipStringAll := req.RemoteAddr
+		ipString, _, err := net.SplitHostPort(ipStringAll)
+		if err != nil {
+			log.Fatalf("Failing out splitting ip with:%v\n", err)
+		}
+		log.Printf("Req.RemoteAddr:%v\n", req.RemoteAddr)
+		log.Printf("Req.RemoteAddrFirst:%v\n", ipString)
+		newPageView := model.NewPageView(ipString, req.Header)
 		linkFound.PageViews = append(linkFound.PageViews, *newPageView)
 
 		restServer.linkController.UpdateLinkFoundByResourcePath(linkFound.ResourcePath,
@@ -103,5 +149,6 @@ func redirectHandler(restServer *RestServer) http.HandlerFunc {
 
 func editHandler(restServer *RestServer) http.HandlerFunc {
 	return func(response http.ResponseWriter, req *http.Request) {
+		corsEnable(&response)
 	}
 }

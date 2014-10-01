@@ -35,7 +35,7 @@ func (linkDao *LinkDaoMap) UpdateLinkFoundByResourcePath(resourcePath string, li
 	linkDao.linkMap[resourcePath] = link
 	return nil
 }
-func (linkDao *LinkDaoMap) GetResourcePathToLinkMap() []model.Link {
+func (linkDao *LinkDaoMap) GetResourcePathToLinks() []model.Link {
 	links := make([]model.Link, len(linkDao.linkMap))
 	counter := 0
 	for _, value := range linkDao.linkMap {

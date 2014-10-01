@@ -56,3 +56,7 @@ func (linkController *LinkController) UpdateLinkFoundByResourcePath(resourcePath
 func (linkController *LinkController) GetLinkByResourcePath(resourcePath string) (*model.Link, error) {
 	return linkController.linkDao.FindLinkByResourcePath(resourcePath)
 }
+
+func (linkController *LinkController) GetResourcePathToLinks() []model.Link {
+	return linkController.linkDao.GetResourcePathToLinks()
+}

@@ -10,5 +10,5 @@ type LinkDao interface {
 	FindLinkByResourcePath(resourcePath string) (*model.Link, error)
 	CreateLink(link model.Link) error
 	UpdateLinkFoundByResourcePath(resourcePath string, link model.Link) error
-	GetResourcePathToLinkMap() []model.Link
+	GetResourcePathToLinks() []model.Link
 }
