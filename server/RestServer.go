@@ -23,10 +23,7 @@ func (restServer *RestServer) Init() {
 		restServer.Port = 8080
 	}
 
-	newLinkDao := &db.LinkDaoMap{}
-	newController := controller.NewLinkController(newLinkDao)
-	restServer.linkController = newController
-	restServer.linkController.Init()
+	restServer.initImplementedController()
 
 	r := mux.NewRouter()
 	r.HandleFunc("/edit/", editHandler(restServer))
@@ -38,6 +35,16 @@ func (restServer *RestServer) Init() {
 	http.Handle("/", r)
 
 	http.ListenAndServe(fmt.Sprintf(":%v", restServer.Port), nil)
+}
+
+// initImplementedController is the method in which we initliaze the controller
+// As part of initializing the controller, the DAO is also initialized and sent.
+// So, if you want to change the DAO, change it HERE
+func (restServer *RestServer) initImplementedController() {
+	newLinkDao := &db.LinkDaoMap{}
+	newController := controller.NewLinkController(newLinkDao)
+	restServer.linkController = newController
+	restServer.linkController.Init()
 }
 
 type LinkService struct {
